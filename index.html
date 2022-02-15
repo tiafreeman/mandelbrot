@@ -2,22 +2,27 @@
 <html>
     <head>
         <style>
-            body {
-                background-color: blueviolet;
-            }
-            #canvas {
-                background-color: white;
+            * {
+                padding: 0;
+                margin: 0;
+                border: 0;
             }
 
-            #label {
-                display: block;
-                background-color: aquamarine;
+            body {
+                width: 100vw;
+                height: 100vh;
+                margin: 0;
+                overflow-y: hidden;
+            }
+
+            #canvas {
+                width: 100vw;
+                height: 100vh;
             }
         </style>
     </head>
     <body>
         <canvas id="canvas"></canvas>
-        <label id="label"></label>
         <script src="mandelbrot.js"></script>
     </body>
 </html>

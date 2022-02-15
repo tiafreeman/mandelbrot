@@ -1,8 +1,8 @@
 const canvas = document.getElementById("canvas");
-canvas.width  = window.innerWidth - 100;
-canvas.height = window.innerHeight - 100;
-const width = window.innerWidth - 100;
-const height = window.innerHeight -100;
+let width = window.innerWidth;
+let height = window.innerHeight;
+canvas.width  = width;
+canvas.height = height;
 const ctx = canvas.getContext("2d");
 const label = document.getElementById("label");
 
@@ -25,6 +25,18 @@ for (let x = 0; x < width; x++) {
         plotInSet(x, y);
     }
 }
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    width = window.innerWidth;
+    height = window.innerHeight;
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            plotInSet(x, y);
+        }
+    }
+  })
 
 canvas.addEventListener("mousemove", (event) => {
     const x = event.offsetX;
