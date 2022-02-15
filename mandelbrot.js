@@ -26,7 +26,13 @@ for (let x = 0; x < width; x++) {
     }
 }
 
-window.addEventListener('resize', () => {
+var doit;
+window.onresize = function(){
+  clearTimeout(doit);
+  doit = setTimeout(resizedw, 100);
+};
+
+function resizedw(){
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
     width = window.innerWidth;
@@ -36,7 +42,7 @@ window.addEventListener('resize', () => {
             plotInSet(x, y);
         }
     }
-  })
+}
 
 canvas.addEventListener("mousemove", (event) => {
     const x = event.offsetX;
