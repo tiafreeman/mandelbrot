@@ -6,92 +6,69 @@ canvas.height = height;
 const ctx = canvas.getContext("2d");
 const label = document.getElementById("label");
 
-const scaleFactor = 1 / 150;
+const scaleFactor = 1 / 400;
 const originR = 0;
 const originI = 0;
 
 const colors = [
-    "rgb(254, 0, 0)",
-    "rgb(255, 121, 1)",
-    "rgb(255, 255, 11)",
-    "rgb(34, 219, 19)",
-    "rgb(36, 48, 255)",
-    "rgb(102, 0, 146)",
-    "rgb(200, 0, 249)"
+    [254, 0, 0],
+    [255, 121, 1],
+    [255, 255, 11],
+    [34, 219, 19],
+    [36, 48, 255],
+    [102, 0, 146],
+    [200, 0, 249]
 ];
 
-for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-        plotInSet(x, y);
-    }
-}
+initializeCanvasSize();
+renderMandelbrot();
 
-var doit;
-window.onresize = function(){
-  clearTimeout(doit);
-  doit = setTimeout(resizedw, 100);
-};
+window.addEventListener("resize", debounce(() => {
+    initializeCanvasSize();
+    renderMandelbrot();
+}, 100));
 
-function resizedw(){
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+function initializeCanvasSize() {
     width = window.innerWidth;
     height = window.innerHeight;
-    for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-            plotInSet(x, y);
-        }
-    }
+    canvas.width = width;
+    canvas.height = height;
 }
 
-canvas.addEventListener("mousemove", (event) => {
-    const x = event.offsetX;
-    const y = event.offsetY;
-    // ctx.clearRect(0, 0, width, height);
-    plotInSet(x, y);
+function renderMandelbrot() {
+    const imgData = ctx.createImageData(width, height);
 
-});
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            const color = getMandelbrotColor(x, y);
+            const index = (y * width + x) * 4;
+            imgData.data[index] = color[0];
+            imgData.data[index + 1] = color[1];
+            imgData.data[index + 2] = color[2];
+            imgData.data[index + 3] = 255; // Alpha channel
+        }
+    }
 
-function plotInSet(x, y) {
+    ctx.putImageData(imgData, 0, 0);
+}
+
+function getMandelbrotColor(x, y) {
     const [cr, ci] = screenToWorld(x, y);
-    
     let zr = 0;
     let zi = 0;
+
     for (let k = 0; k < 100; k++) {
         const _zr = zr * zr - zi * zi + cr;
         const _zi = 2 * zr * zi + ci;
         zr = _zr;
         zi = _zi;
-        const dist = Math.sqrt(zr * zr  + zi * zi);
-        if (dist > 2) {
-            const color = colors[k % colors.length];
-            ctx.fillStyle = color;
-            plotPoint(x, y);
-            return;
+
+        if (zr * zr + zi * zi > 4) {
+            return colors[k % colors.length]; // This now returns an RGB array directly
         }
-        // const [x1, y1] = worldToScreen(zr, zi);
-        // const color = colors[k % colors.length];
-        // ctx.fillStyle = color;
-        // plotPoint(x1, y1);
     }
-    const dist = Math.sqrt(zr * zr  + zi * zi);
-    if (dist < 2) {
-        ctx.fillStyle = "black";
-        plotPoint(x, y);
-    }
-}
 
-function plotPoint(x, y, radius=1) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
-}
-
-function plotLine(x1, y1, x2, y2) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+    return [0, 0, 0]; // Black if the point is in the Mandelbrot set
 }
 
 function screenToWorld(x, y) {
@@ -100,8 +77,13 @@ function screenToWorld(x, y) {
     return [r, i];
 }
 
-function worldToScreen(r, i) {
-    const x = (r - originR) / scaleFactor + width / 2;
-    const y = -(i - originI) / scaleFactor + height / 2;
-    return [x, y];
+
+function debounce(fn, delay) {
+    let timer;
+    return function() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn.apply(this, arguments);
+        }, delay);
+    };
 }
